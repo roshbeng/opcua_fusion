@@ -22,6 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-7q7!l#4&9#2^2p@c__f8yh-0%fnuy%a3w)7*i9t(*m0m^nhq!m"
 
+"""In Production, you should set the SECRET_KEY to a random value and keep it secret.
+You can generate a random secret key using the following Python code:
+
+
+import os
+from dotenv import load_dotenv
+load_dotenv(BASE_DIR / '.env')
+SECRET_KEY = os.environ.get("SECRET_KEY")"""
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
