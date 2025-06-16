@@ -171,3 +171,8 @@ Automate tasks across multiple connected machines.
 3.  **Define the Chain**: For each step, select a machine and the method to call.
 4.  **Provide Inputs**: For each step, provide static values or use the output from a previous step as input.
 5.  **Schedule and Execute**: Start the process and monitor the live log. An **Emergency Stop** button is available.
+
+## 🧪 Testing & Complementary Applications
+
+-   **Test Environment**: The OPCUA Fusion application can be tested using a set of sample OPC UA servers and virtual hardware simulations available at: [opcua_fusion_test_servers_and_hardware](https://github.com/roshbeng/opcua_fusion_test_servers_and_hardware).
+-   **Customer-Facing Application**: A complementary customer-facing cloud application that works with the data logged by OPCUA Fusion is available here: [opcua_fusion_cloud](https://github.com/roshbeng/opcua_fusion_cloud.git).
