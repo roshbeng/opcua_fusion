@@ -176,3 +176,75 @@ Automate tasks across multiple connected machines.
 
 -   **Test Environment**: The OPCUA Fusion application can be tested using a set of sample OPC UA servers and virtual hardware simulations available at: [opcua_fusion_test_servers_and_hardware](https://github.com/roshbeng/opcua_fusion_test_servers_and_hardware).
 -   **Customer-Facing Application**: A complementary customer-facing cloud application that works with the data logged by OPCUA Fusion is available here: [opcua_fusion_cloud](https://github.com/roshbeng/opcua_fusion_cloud.git).
+
+## 🔌 Connecting OPCUA Test Server Cobot and Conveyor Hardware Directly via Ethernet (Network Bridge)
+
+To connect the Raspberry Pi-based hardware directly to the laptop running this application without an external router, you can create a network bridge. This allows the laptop to share its Wi-Fi connection with devices connected via its Ethernet port.
+
+### Network Topology
+
+```
+(Internet) --- Wi-Fi ---> [ Laptop (Running OPCUA Fusion) ] --- Ethernet ---> [ Switch ] --- Ethernet ---> [ Pi 1: Conveyor (192.168.1.2) ]
+                                                                                   |
+                                                                                    --- Ethernet ---> [ Pi 2: Cobot (192.168.1.3) ]
+```
+
+### Setup Guide
+
+#### 1. Configure the Laptop's Network
+
+Your laptop must have a static IP address on the same network as the hardware. We will use the `192.168.1.x` subnet.
+
+**On Windows:**
+
+1.  Open Network Connections: Press `Win + R`, type `ncpa.cpl`, and press Enter.
+2.  **Set Static IP on Ethernet Port**:
+    -   Right-click your **Ethernet** adapter and select **Properties**.
+    -   Select **Internet Protocol Version 4 (TCP/IPv4)** and click **Properties**.
+    -   Select "Use the following IP address".
+    -   Enter the following:
+        -   IP address: `192.168.1.1`
+        -   Subnet mask: `255.255.255.0`
+    -   Leave the "Default gateway" and "DNS server" fields blank. Click OK.
+3.  **Share Wi-Fi Connection**:
+    -   Right-click your **Wi-Fi** adapter and select **Properties**.
+    -   Go to the **Sharing** tab.
+    -   Check the box "Allow other network users to connect through this computer's Internet connection".
+    -   From the "Home networking connection" dropdown, select your **Ethernet** adapter.
+    -   Click OK.
+
+**On macOS:**
+
+1.  Open **System Settings** > **Network**.
+2.  **Set Static IP on Ethernet Port**:
+    -   Select your **Ethernet** adapter (or USB-to-Ethernet adapter).
+    -   Click **Details...** > **TCP/IP**.
+    -   Set "Configure IPv4" to **Manually**.
+    -   Enter the following:
+        -   IP Address: `192.168.1.1`
+        -   Subnet Mask: `255.255.255.0`
+    -   Leave the "Router" field blank. Click OK.
+3.  **Share Wi-Fi Connection**:
+    -   Go to **System Settings** > **General** > **Sharing**.
+    -   Turn on **Internet Sharing**.
+    -   Click the info icon (`i`) next to it.
+    -   Set "Share your connection from:" to **Wi-Fi**.
+    -   Set "To computers using:" to your **Ethernet** adapter.
+    -   Click **Done**.
+
+#### 2. Connect and Verify
+
+1.  Connect an Ethernet cable from your laptop's Ethernet port to a network switch.
+2.  Connect both Raspberry Pis (Cobot and Conveyor) to the same switch using Ethernet cables.
+3.  Open a terminal or Command Prompt on your laptop and test the connection using `ping`:
+    ```bash
+    # Test connection to the Conveyor Pi
+    ping 192.168.1.2
+
+    # Test connection to the Cobot Pi
+    ping 192.168.1.3
+    ```
+4.  If you receive replies, the network is configured correctly. You can now run the OPCUA Fusion application and connect to the hardware using their endpoints:
+    -   Conveyor: `opc.tcp://192.168.1.2:4840/conveyor`
+    -   Cobot: `opc.tcp://192.168.1.3:4840/cobot_arm`
+
