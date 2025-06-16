@@ -1,0 +1,72 @@
+<!-- cloud_managements/templates/cloud_managements/user_accounts.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Accounts</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cloud_managements/css/user.css' %}">
+    <script>
+        
+        function searchUsers() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("userSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("userTable");
+            tr = table.getElementsByTagName("tr");
+
+            
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                
+                for (var j = 0; j < td.length - 1; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>User Accounts Approval</h1>
+    <p>
+        <a href="{% url 'cloud_managements:index' %}">Back to Cloud Managements</a>
+    </p>
+
+    <input
+        type="text"
+        id="userSearch"
+        onkeyup="searchUsers()"
+        placeholder="Search for users..."
+    />
+
+    
+    <table id="userTable" border="1">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Company Name</th>
+            <th>Approved</th>
+            <th>Action</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.company_name }}</td>
+            <td>{{ user.approved }}</td>
+            <td>
+                <a href="{% url 'cloud_managements:user_account_detail' user.id %}">Show or Update</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

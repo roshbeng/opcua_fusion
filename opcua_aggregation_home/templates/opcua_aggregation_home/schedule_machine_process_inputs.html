@@ -1,0 +1,71 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/schedule_machine_process_inputs.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provide the Inputs for Method Process</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/schedule_machine_process_inputs.css' %}">
+</head>
+<body>
+    <h1>Provide the Inputs for Method Process</h1>
+    <div>
+        <h3>Instructions</h3>
+        <p>Select the required text inputs or dropdowns</p>
+        <p>For dropdowns, only select outputs of previous processes</p>
+    </div>
+    <form method="post" action="{% url 'opcua_aggregation_home:schedule_machine_process_inputs' %}">
+        {% csrf_token %}
+        {% for process_key, process in method_context_data.items %}
+        <div class="process" id="process_{{ forloop.counter }}">
+            <h2>{{ process_key|capfirst }}: {{ process.method_name }} method of endpoint {{ process.endpoint }} under namespaceuri {{ process.namespaceuri }}</h2>
+            <input type="hidden" name="{{ process_key }}_method_name" value="{{ process.method_name }}">
+            <input type="hidden" name="{{ process_key }}_endpoint" value="{{ process.endpoint }}">
+            <input type="hidden" name="{{ process_key }}_namespaceuri" value="{{ process.namespaceuri }}">
+            <input type="hidden" name="{{ process_key }}_num_arguments" value="{{ process.num_arguments }}">
+            {% if process.input_arguments %}
+            {% for argument in process.input_arguments %}
+                <p>If boolean datatype, input is either 1 for True or 0 for false</p>
+                <p>Input Argument {{ forloop.counter }}: {{ argument.name }} ({{ argument.datatype }}) - {{ argument.description }}</p>
+                
+                <label>
+                    <input type="radio" name="{{ process_key }}_argument_{{ forloop.counter }}_option" value="include_value">
+                    Include this argument with a custom value
+                    <textarea type="text" name="{{ process_key }}_argument_{{ forloop.counter }}_value" placeholder="Enter value"></textarea>
+                </label><br>
+                
+                
+                <label class="dropdown-option">
+                    <input type="radio" name="{{ process_key }}_argument_{{ forloop.counter }}_option" value="use_custom_input">
+                    Use Custom Input from another process
+                    <select name="{{ process_key }}_argument_{{ forloop.counter }}_custom_input">
+                        {% for i in process_numbers %}
+                            <option value="process_{{ i }}">output_of_process_{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </label><br>
+            {% endfor %}
+            {% else %}
+                <p>No input arguments.</p>
+                <label><input type="radio" name="{{ process_key }}_call_method" value="call_method"> Just call the method</label><br>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            var firstProcess = document.getElementById('process_1');
+            if (firstProcess) {
+                
+                var dropdownOptions = firstProcess.getElementsByClassName('dropdown-option');
+                for (var i = 0; i < dropdownOptions.length; i++) {
+                    dropdownOptions[i].style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

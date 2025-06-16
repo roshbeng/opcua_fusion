@@ -1,0 +1,57 @@
+<!-- opcua_client/templates/opcua_client/connection_error.html -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    {% csrf_token %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'opcua_client/css/connection_error.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Error</h1>
+        {% if endpoint %}
+            <p id="endpoint-value" hidden>{{ endpoint }}</p>
+        {% endif %}
+        <p>{{ error_message }}</p>
+        <p>{{ instruction }}</p>
+        <p>Please close this tab manually, or click the button below:</p>
+        <button onclick="closeTab()">Close Tab</button>
+    </div>
+    <script>
+        function closeTab() {
+            var endpointElement = document.getElementById('endpoint-value');
+            if (endpointElement) {
+                var endpoint = endpointElement.textContent.trim();
+                var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+                fetch('/remove_connection/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ endpoint: endpoint })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Connection ended:', data.message);
+                    
+                    window.close();
+                })
+                .catch(error => {
+                    console.error('Error ending the connection:', error);
+                    
+                    window.close();
+                });
+            } else {
+                
+                window.close();
+            }
+        }
+    </script>
+</body>
+</html>

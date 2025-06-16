@@ -1,0 +1,262 @@
+<!-- opcua_client/templates/opcua_client/generate_graph.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generate Graph</title>
+    {% load static %} {% csrf_token %}
+    <link
+      rel="stylesheet"
+      href="{% static 'opcua_client/css/generate_graph.css' %}"
+    />
+    <script>
+      function addVariableToX() {
+        let xAxisDropdown = document.getElementById("x-axis-dropdown");
+        let selectedValue = xAxisDropdown.value;
+
+        let variablesForX = document.getElementById("variables_for_x").children;
+        for (let i = 1; i < variablesForX.length; i++) {
+          if (variablesForX[i].textContent === selectedValue) {
+            alert("This variable is already added to the X axis.");
+            return;
+          }
+        }
+
+        if (selectedValue) {
+          let variablesForX = document.getElementById("variables_for_x");
+          let newDiv = document.createElement("div");
+          newDiv.textContent = selectedValue;
+          variablesForX.appendChild(newDiv);
+        }
+      }
+
+      function addVariableToY() {
+        let yAxisDropdown = document.getElementById("y-axis-dropdown");
+        let selectedValue = yAxisDropdown.value;
+
+        let variablesForY = document.getElementById("variables_for_y").children;
+        for (let i = 1; i < variablesForY.length; i++) {
+          if (variablesForY[i].textContent === selectedValue) {
+            alert("This variable is already added to the Y axis.");
+            return;
+          }
+        }
+
+        if (selectedValue) {
+          let variablesForY = document.getElementById("variables_for_y");
+          let newDiv = document.createElement("div");
+          newDiv.textContent = selectedValue;
+          variablesForY.appendChild(newDiv);
+        }
+      }
+
+      function addFromDate() {
+        let fromDateInput = document.getElementById("from_date").value;
+        if (fromDateInput) {
+          let fromDateDiv = document.getElementById("from_date_div");
+          fromDateDiv.innerHTML =
+            "<h3>From Date:</h3>" +
+            "<div id='from_date_value'>" +
+            fromDateInput +
+            "</div>";
+        }
+      }
+
+      function addToDate() {
+        let fromDateInput = document.getElementById("from_date").value;
+        let toDateInput = document.getElementById("to_date").value;
+
+        if (!fromDateInput) {
+          alert("Please select a valid 'From Date' first.");
+          return;
+        }
+
+        if (toDateInput) {
+          let fromDate = new Date(fromDateInput);
+          let toDate = new Date(toDateInput);
+
+          if (toDate > fromDate) {
+            let toDateDiv = document.getElementById("to_date_div");
+            toDateDiv.innerHTML =
+              "<h3>To Date:</h3>" +
+              "<div id='to_date_value'>" +
+              toDateInput +
+              "</div>";
+          } else {
+            alert("'To Date' should be after 'From Date'. Please select a valid date.");
+          }
+        }
+      }
+
+      function resetSelections() {
+        document.getElementById("variables_for_x").innerHTML =
+          "<h3>X Axis Variables:</h3>";
+        document.getElementById("variables_for_y").innerHTML =
+          "<h3>Y Axis Variables:</h3>";
+        document.getElementById("from_date_div").innerHTML =
+          "<h3>From Date:</h3>";
+        document.getElementById("to_date_div").innerHTML =
+          "<h3>To Date:</h3>";
+      }
+
+      function submitForm() {
+        let xAxisVariables = [];
+        let variablesForX = document.getElementById("variables_for_x").children;
+        for (let i = 1; i < variablesForX.length; i++) {
+          xAxisVariables.push(variablesForX[i].textContent);
+        }
+
+        let yAxisVariables = [];
+        let variablesForY = document.getElementById("variables_for_y").children;
+        for (let i = 1; i < variablesForY.length; i++) {
+          yAxisVariables.push(variablesForY[i].textContent);
+        }
+
+        let fromDate = document.getElementById("from_date_value")
+          ? document.getElementById("from_date_value").textContent
+          : null;
+        if (fromDate) {
+          fromDate = new Date(fromDate);
+          fromDate = fromDate.toISOString();
+        }
+
+        let toDate = document.getElementById("to_date_value")
+          ? document.getElementById("to_date_value").textContent
+          : null;
+        if (toDate) {
+          toDate = new Date(toDate);
+          toDate = toDate.toISOString();
+        }
+
+        if (!fromDate || !toDate) {
+          alert("Please ensure both 'From Date' and 'To Date' are selected.");
+          return;
+        }
+
+        let endpoint = "{{ endpoint }}";
+
+        let requestData = {
+          x_axis_variables: xAxisVariables,
+          y_axis_variables: yAxisVariables,
+          from_date: fromDate,
+          to_date: toDate,
+          endpoint: endpoint,
+        };
+
+        fetch("{% url 'opcua_client:generate_graph' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector(
+              "[name=csrfmiddlewaretoken]"
+            ).value,
+          },
+          body: JSON.stringify(requestData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((errorData) => {
+                throw new Error(
+                  errorData.message || "Failed to generate the graph."
+                );
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            location.reload();
+          })
+          .catch((error) => {
+            alert(`Error: ${error.message}`);
+          });
+      }
+
+      function deleteGraph(image_url) {
+        let imageName = image_url.split("/").pop();
+
+        fetch("{% url 'opcua_client:delete_graph' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector(
+              "[name=csrfmiddlewaretoken]"
+            ).value,
+          },
+          body: JSON.stringify({ image_name: imageName }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              location.reload();
+            } else {
+              alert("Error deleting image: " + data.message);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </head>
+  <body>
+    <h1>
+      Generate Graphs: {{ endpoint }} <br />
+      namespaceuri: {{namespaceuri}}
+    </h1>
+
+    <form method="POST">
+      {% csrf_token %}
+      <label for="x-axis-dropdown">Add to x axis:</label>
+      <select id="x-axis-dropdown" name="x_axis_values">
+        {% for key in variables_data.keys %}
+        <option value="{{ key }}">{{ key }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" onclick="addVariableToX()">Add</button>
+
+      <label for="y-axis-dropdown">Add to y axis:</label>
+      <select id="y-axis-dropdown" name="y_axis_values">
+        {% for key in variables_data.keys %}
+        <option value="{{ key }}">{{ key }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" onclick="addVariableToY()">Add</button>
+
+      <label for="from_date">From (Date and Time):</label>
+      <input type="datetime-local" id="from_date" name="from_date" />
+      <button type="button" onclick="addFromDate()">Add</button>
+
+      <label for="to_date">To (Date and Time):</label>
+      <input type="datetime-local" id="to_date" name="to_date" />
+      <button type="button" onclick="addToDate()">Add</button>
+
+      <div id="variables_for_x">
+        <h3>X Axis Variables:</h3>
+      </div>
+      <div id="variables_for_y">
+        <h3>Y Axis Variables:</h3>
+      </div>
+      <div id="from_date_div">
+        <h3>From Date:</h3>
+      </div>
+      <div id="to_date_div">
+        <h3>To Date:</h3>
+      </div>
+
+      <button type="button" onclick="submitForm()">Generate Graph</button>
+      <button type="button" onclick="resetSelections()">Reset</button>
+    </form>
+
+    <div id="image-gallery">
+      <h2>Generated Graphs:</h2>
+      {% for image_url in image_urls %}
+      <div>
+        <img src="{% static image_url %}" alt="Generated Graph" />
+        <button type="button" onclick="deleteGraph('{% static image_url %}')">
+          Delete
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

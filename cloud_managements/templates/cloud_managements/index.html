@@ -1,0 +1,26 @@
+<!-- cloud_managements/templates/cloud_managements/index.html -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OPCUA Connect Cloud Managements</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cloud_managements/css/cloud_index.css' %}">
+  </head>
+  <body>
+    <h1>Cloud Managements</h1>
+    <p><a href="/">Home</a></p>
+    <ul>
+      <li>
+        <a href="{% url 'cloud_managements:user_accounts' %}"
+          > All User Accounts</a
+        >
+      </li>
+      <li>
+        <a href="{% url 'cloud_managements:quote_requests' %}"
+          >All Quote Requests</a
+        >
+      </li>
+    </ul>
+  </body>
+</html>

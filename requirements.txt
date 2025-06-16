@@ -1,0 +1,8 @@
+Django
+opcua
+firebase-admin
+google-cloud-firestore
+matplotlib
+pandas
+pytz
+tzlocal

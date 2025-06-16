@@ -1,0 +1,90 @@
+<!-- opcua_client/templates/opcua_client/download_data.html -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Download Data</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'opcua_client/css/download_data.css' %}">
+    <script>
+        function submitForm() {
+            
+            let fromDateInput = document.getElementById("from_date").value;
+            let toDateInput = document.getElementById("to_date").value;
+
+            if (!fromDateInput || !toDateInput) {
+                alert("Please select both 'From Date' and 'To Date'.");
+                return;
+            }
+
+            let fromDate = new Date(fromDateInput);
+            let toDate = new Date(toDateInput);
+
+            if (toDate <= fromDate) {
+                alert("'To Date' must be after 'From Date'.");
+                return;
+            }
+
+            fromDate = fromDate.toISOString();
+            toDate = toDate.toISOString();
+
+            
+            let endpoint = "{{ endpoint }}";
+
+            let requestData = {
+                'from_date': fromDate,
+                'to_date': toDate,
+                'endpoint': endpoint
+            };
+
+            fetch("{% url 'opcua_client:download_data' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    return response.blob();
+                } else {
+                    return response.json().then(data => {throw new Error(data.message)});
+                }
+            })
+            .then(blob => {
+             
+                let url = window.URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = `data_${new Date().toISOString()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Download Data: {{ endpoint }} <br> namespaceuri: {{namespaceuri}}</h1>
+
+    <span>Download Variables Data:</span>
+
+    <form method="POST">
+        {% csrf_token %}
+
+       
+        <label for="from_date">From (Date and Time):</label>
+        <input type="datetime-local" id="from_date" name="from_date">
+
+        <label for="to_date">To (Date and Time):</label>
+        <input type="datetime-local" id="to_date" name="to_date">
+
+        <button type="button" onclick="submitForm()">Download CSV</button>
+    </form>
+</body>
+</html>

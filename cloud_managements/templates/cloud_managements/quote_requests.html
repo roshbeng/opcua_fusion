@@ -1,0 +1,126 @@
+<!-- cloud_managements/templates/cloud_managements/quote_requests.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quote Requests</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cloud_managements/css/quote_requests.css' %}">
+    <script>
+        function searchQuotes() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("quoteSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("quoteTable");
+            tr = table.getElementsByTagName("tr");
+
+
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                for (var j = 0; j < td.length - 1; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Quote Requests</h1>
+    <p><a href="{% url 'cloud_managements:index' %}">Back to Cloud Managements</a></p>
+
+    <input type="text" id="quoteSearch" onkeyup="searchQuotes()" placeholder="Search for user quote requests..."/>
+    <p>All timestamps are in UTC format</p>
+
+    <table id="quoteTable" border="1">
+        <tr>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th>Material</th>
+            <th>Status</th>
+            <th>Request Timestamp(y-m-d h:m)</th>
+            <th>Start Timestamp (y-m-d h:m)</th>
+            <th>Finish Timestamp(y-m-d h:m)</th>
+            <th>Updated Timestamp(y-m-d h:m)</th>
+            <th>Download Files</th>
+            <th>Download Technical Drawing</th>
+            <th>Download Report</th>
+            <th>Created by</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {% for quote in quotes %}
+        <tr>
+            <td>{{ quote.title }}</td>
+            <td>{{ quote.quantity }}</td>
+            <td>{{ quote.material }}</td>
+            <td>{{ quote.status }}</td>
+            <td>{{ quote.request_timestamp|date:"Y-m-d H:i:s" }}</td>
+
+            <td>
+                {% if quote.start_timestamp %}
+                    {{ quote.start_timestamp|date:"Y-m-d H:i:s" }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+
+            <td>
+                {% if quote.finish_timestamp %}
+                    {{ quote.finish_timestamp|date:"Y-m-d H:i:s" }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+
+            <td>
+                {% if quote.updated_timestamp %}
+                
+                    {{ quote.updated_timestamp|date:"Y-m-d H:i:s" }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+
+            <td>
+                {% if quote.file_url %}
+                    
+                    <a href="{{ quote.file_url }}">Download Files</a>
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+
+            <td>
+                {% if quote.technical_drawing_url %}
+                    
+                    <a href="{{ quote.technical_drawing_url }}">Download Technical Drawing</a>
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+
+            <td>
+                {% if quote.report %}
+                    
+                    <a href="{{ quote.report }}">Download Report</a>
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+            <td>{{ quote.user_name }}</td>
+            <td>{{ quote.user_email }}</td>
+            <td>
+                <a href="{% url 'cloud_managements:quote_request_detail' quote.id %}">Show or Update</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

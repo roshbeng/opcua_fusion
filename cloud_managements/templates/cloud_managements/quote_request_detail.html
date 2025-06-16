@@ -1,0 +1,280 @@
+<!-- cloud_managements/templates/cloud_managements/quote_request_detail.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quote Request Detail</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cloud_managements/css/quote_details.css' %}">
+</head>
+<body>
+    <h1>Quote Request Detail</h1>
+    <p><a href="{% url 'cloud_managements:quote_requests' %}">Back to Quote Requests</a></p>
+    <p>
+        All timestamps are in local format
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Title:</strong>
+            <input type="text" name="title" value="{{ quote.title }}">
+            <button type="submit" name="update_field" value="title">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>G Code:</strong>
+            <textarea name="gcode">{% if quote.gcode %}{{ quote.gcode }}{% endif %}</textarea>
+            <button type="submit" name="update_field" value="gcode">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Description:</strong>
+            <textarea name="description">{{ quote.description }}</textarea>
+            <button type="submit" name="update_field" value="description">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Quantity:</strong>
+            <input type="number" name="quantity" value="{{ quote.quantity }}">
+            <button type="submit" name="update_field" value="quantity">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Design Units:</strong>
+            <select name="design_units">
+                <option value="">Select Units</option>
+                <option value="mm" {% if quote.design_units == 'mm' %}selected{% endif %}>Millimeters (mm)</option>
+                <option value="cm" {% if quote.design_units == 'cm' %}selected{% endif %}>Centimeters (cm)</option>
+                <option value="inch" {% if quote.design_units == 'inch' %}selected{% endif %}>Inches (inch)</option>
+            </select>
+            <button type="submit" name="update_field" value="design_units">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Material:</strong>
+            <select id="material" name="material">
+                <option value="">Select Material</option>
+                <optgroup label="Metals">
+                    <option value="Aluminum" {% if quote.material == 'Aluminum' %}selected{% endif %}>Aluminum</option>
+                    <option value="Stainless Steel 304" {% if quote.material == 'Stainless Steel 304' %}selected{% endif %}>Stainless Steel 304</option>
+                    <option value="Brass" {% if quote.material == 'Brass' %}selected{% endif %}>Brass</option>
+                    <option value="Copper" {% if quote.material == 'Copper' %}selected{% endif %}>Copper</option>
+                    <option value="Titanium" {% if quote.material == 'Titanium' %}selected{% endif %}>Titanium</option>
+                    <option value="Mild Steel" {% if quote.material == 'Mild Steel' %}selected{% endif %}>Mild Steel</option>
+                </optgroup>
+                <optgroup label="Plastics">
+                    <option value="ABS" {% if quote.material == 'ABS' %}selected{% endif %}>ABS</option>
+                    <option value="Polycarbonate" {% if quote.material == 'Polycarbonate' %}selected{% endif %}>Polycarbonate (PC)</option>
+                    <option value="Nylon" {% if quote.material == 'Nylon' %}selected{% endif %}>Nylon</option>
+                    <option value="Polypropylene" {% if quote.material == 'Polypropylene' %}selected{% endif %}>Polypropylene (PP)</option>
+                    <option value="Polyethylene" {% if quote.material == 'Polyethylene' %}selected{% endif %}>Polyethylene (PE)</option>
+                    <option value="Rubber" {% if quote.material == 'Rubber' %}selected{% endif %}>Rubber</option>
+                    <option value="Carbon Fiber" {% if quote.material == 'Carbon Fiber' %}selected{% endif %}>Carbon Fiber</option>
+                </optgroup>
+            </select>
+            <button type="submit" name="update_field" value="material">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Surface Finish:</strong>
+            <select name="surface_finish">
+                <option value="">Select Surface Finish</option>
+                <option value="Standard (As-Milled)" {% if quote.surface_finish == 'Standard (As-Milled)' %}selected{% endif %}>Standard (As-Milled)</option>
+                <option value="Anodized" {% if quote.surface_finish == 'Anodized' %}selected{% endif %}>Anodized</option>
+                <option value="Brushed" {% if quote.surface_finish == 'Brushed' %}selected{% endif %}>Brushed</option>
+                <option value="Bead Blast" {% if quote.surface_finish == 'Bead Blast' %}selected{% endif %}>Bead Blast</option>
+                <option value="Spray Painting" {% if quote.surface_finish == 'Spray Painting' %}selected{% endif %}>Spray Painting</option>
+                <option value="Powder Coat" {% if quote.surface_finish == 'Powder Coat' %}selected{% endif %}>Powder Coat</option>
+                <option value="Spray-Plating" {% if quote.surface_finish == 'Spray-Plating' %}selected{% endif %}>Spray-Plating</option>
+                <option value="Detail Sanding" {% if quote.surface_finish == 'Detail Sanding' %}selected{% endif %}>Detail Sanding</option>
+            </select>
+            <button type="submit" name="update_field" value="surface_finish">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Tolerance:</strong>
+            <select name="tolerance">
+                <option value="">Select Tolerance</option>
+                <option value="Standard (ISO 2768-1)" {% if quote.tolerance == 'Standard (ISO 2768-1)' %}selected{% endif %}>Standard (ISO 2768-1)</option>
+                <option value="Tighter tolerances required" {% if quote.tolerance == 'Tighter tolerances required' %}selected{% endif %}>Tighter tolerances required</option>
+            </select>
+            <button type="submit" name="update_field" value="tolerance">Update</button>
+        </p>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Status:</strong>
+            <select name="status">
+                <option value="planning" {% if quote.status == 'planning' %}selected{% endif %}>Planning</option>
+                <option value="in progress" {% if quote.status == 'in progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if quote.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+            <button type="submit" name="update_field" value="status">Update</button>
+        </p>
+    </form>
+
+    <p hidden>
+        <strong>Request Timestamp (UTC):</strong>
+        <span id="request-utc-timestamp">{{ quote.request_timestamp|date:"Y-m-d H:i:s" }}</span>
+    </p>
+    <p>
+        <strong>Request Timestamp (Local):</strong>
+        <span id="request-local-timestamp"></span>
+    </p>
+    
+    <p>
+        <strong>Start Timestamp:</strong>
+        {% if quote.start_timestamp %}
+            <p hidden>
+                <strong>UTC:</strong>
+                <span id="start-utc-timestamp">{{ quote.start_timestamp|date:"Y-m-d H:i:s" }}</span>
+            </p>
+            <p>
+                <span id="start-local-timestamp"></span>
+            </p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <p>
+                <input type="datetime-local" name="start_timestamp" value="{{ quote.start_timestamp|date:"Y-m-d\\TH:i" }}">
+                <button type="submit" name="update_field" value="start_timestamp">Update</button>
+            </p>
+        </form>
+    </p>
+    
+    <p>
+        <strong>Finish Timestamp:</strong>
+        {% if quote.finish_timestamp %}
+            <p hidden>
+                <strong>UTC:</strong>
+                <span id="finish-utc-timestamp">{{ quote.finish_timestamp|date:"Y-m-d H:i:s" }}</span>
+            </p>
+            <p>
+                <span id="finish-local-timestamp"></span>
+            </p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <p>
+                <input type="datetime-local" name="finish_timestamp" value="{{ quote.finish_timestamp|date:"Y-m-d\\TH:i" }}">
+                <button type="submit" name="update_field" value="finish_timestamp">Update</button>
+            </p>
+        </form>
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            <strong>Technical Drawing:</strong>
+            {% if quote.technical_drawing_url %}
+                <a href="{{ quote.technical_drawing_url }}" target="_blank">Download Technical Drawing</a><br/>
+            {% endif %}
+            <input type="file" name="technical_drawing_file" accept=".pdf,.png,.jpg,.jpeg">
+            <button type="submit" name="update_field" value="technical_drawing_url">Upload Technical Drawing</button>
+        </p>
+    </form>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            <strong>Report:</strong>
+            {% if quote.report %}
+                <a href="{{ quote.report }}" target="_blank">Download Report</a><br/>
+            {% endif %}
+            <input type="file" name="report_file" accept=".zip,.pdf">
+            <button type="submit" name="update_field" value="report">Upload Report</button>
+        </p>
+    </form>
+
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            <strong>File URL:</strong>
+            {% if quote.file_url %}
+                <a href="{{ quote.file_url }}" target="_blank">Download Files</a><br/>
+            {% endif %}
+            <input type="file" name="file_url_file" accept=".zip">
+            <button type="submit" name="update_field" value="file_url">Upload File</button>
+        </p>
+    </form>
+
+    <p hidden>
+        <strong>Updated Timestamp (UTC):</strong>
+        <span id="utc-timestamp">{{ quote.updated_timestamp|date:"Y-m-d H:i:s" }}</span>
+    </p>
+
+
+    <p>
+        <strong>Updated Timestamp:</strong>
+        <span id="local-timestamp"></span>
+    </p>
+
+</body>
+<script>
+
+    function displayLocalTime(utcElementId, localElementId) {
+        const utcElement = document.getElementById(utcElementId);
+        if (utcElement) {
+            const utcTimestamp = utcElement.innerText;
+            const utcDate = new Date(utcTimestamp + ' UTC');
+            const localDate = utcDate.toLocaleString();
+            const localElement = document.getElementById(localElementId);
+            if (localElement) {
+                localElement.innerText = localDate;
+            }
+        }
+    }
+
+
+    displayLocalTime('request-utc-timestamp', 'request-local-timestamp');
+    displayLocalTime('start-utc-timestamp', 'start-local-timestamp');
+    displayLocalTime('finish-utc-timestamp', 'finish-local-timestamp');
+    displayLocalTime('utc-timestamp', 'local-timestamp');
+
+    document.getElementById('material').addEventListener('change', function() {
+        var material = this.value;
+        var aluminumTypeDiv = document.getElementById('aluminum_type_div');
+        if (material === 'Aluminum') {
+            aluminumTypeDiv.style.display = 'block';
+        } else {
+            aluminumTypeDiv.style.display = 'none';
+        }
+    });
+
+
+    window.onload = function() {
+        var material = document.getElementById('material').value;
+        var aluminumTypeDiv = document.getElementById('aluminum_type_div');
+        if (material === 'Aluminum') {
+            aluminumTypeDiv.style.display = 'block';
+        } else {
+            aluminumTypeDiv.style.display = 'none';
+        }
+    };
+</script>
+</html>

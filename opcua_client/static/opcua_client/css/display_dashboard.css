@@ -1,0 +1,183 @@
+/*-- opcua_client/static/css/display_dashboard.css */
+
+#opcua-dashboard {
+  max-width: 1500px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+}
+
+#connection-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.connection-item {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 200px;
+}
+
+.connection-item label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.connection-item div {
+  background-color: #e6e6e6;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.connection-item button {
+  align-self: flex-start;
+  margin-top: 25px;
+  background-color: #ff0000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+#end-connect-btn {
+  background-color: #ff0000;
+}
+#end-connect-btn:hover {
+  background-color: #cc0000;
+}
+
+@media (max-width: 768px) {
+  .connection-item {
+    flex: 1 1 100%;
+  }
+  .connection-item button {
+    margin-top: 10px;
+  }
+}
+
+button {
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+#graph-button {
+  background-color: #007bff;
+}
+
+#graph-button:hover {
+  background-color: #0056b3;
+}
+
+#download-data-button {
+  background-color: #007bff;
+}
+
+#download-data-button:hover {
+  background-color: #0056b3;
+}
+
+#machine-address-space h3,
+#display h3,
+#variables-real-time h3,
+#methods h3 {
+  color: #000000;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 10px;
+}
+
+#address-space-tree ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+#address-space-tree ul li {
+  margin-bottom: 5px;
+}
+
+#address-space-tree ul li button {
+  background-color: transparent;
+  color: #000000;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+#node-details,
+#real-time-values {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+#node-details p,
+#real-time-values p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+form h4 {
+  margin-bottom: 10px;
+  color: #000000;
+}
+
+form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+form button {
+  background-color: #28a745;
+}
+
+form button:hover {
+  background-color: #218838;
+}
+
+#end-connect-btn,
+#graph-buttom,
+#download-data-button {
+  transition: background-color 0.3s ease;
+}
+
+#real-time-values {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#real-time-values p {
+  flex: 1 1 50%;
+  box-sizing: border-box;
+  padding: 5px;
+}

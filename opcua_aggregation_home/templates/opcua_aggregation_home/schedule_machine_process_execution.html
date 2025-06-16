@@ -1,0 +1,79 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/schedule_machine_process_execution.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Process Progress</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/schedule_machine_process_execution.css' %}">
+    <style>
+        .alert {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        #stop-button {
+            margin-bottom: 15px;
+        }
+    </style>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+    <h1>Process Progress</h1>
+    <button id="stop-button">Scheduled Processes Emergency Stop</button>
+    <div>
+        <h3>Instructions</h3>
+        <p>In case of emergency stop, also stop in individual instances</p>
+    </div>
+    <div id="progress-messages"></div>
+    <script>
+        var processId = '{{ process_id }}';
+        var lastMessageIndex = 0;
+
+        function fetchProgress() {
+            fetch('{% url "opcua_aggregation_home:get_process_progress" %}?process_id=' + processId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages && data.messages.length > lastMessageIndex) {
+                    // Get new messages
+                    var newMessages = data.messages.slice(lastMessageIndex);
+                    newMessages.forEach(function(message) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'alert';
+                        messageDiv.textContent = message;
+
+                        document.getElementById('progress-messages').appendChild(messageDiv);
+                    });
+                    lastMessageIndex = data.messages.length;
+
+                    
+                    var lastMessage = data.messages[data.messages.length - 1];
+                    if (lastMessage === 'Progress: All scheduled processes have been completed' || lastMessage === 'Process Stopped!') {
+                        clearInterval(progressInterval);
+                    }
+                }
+            });
+        }
+
+        
+        var progressInterval = setInterval(fetchProgress, 1000);
+        
+        fetchProgress();
+
+        
+        document.getElementById('stop-button').addEventListener('click', function() {
+            fetch('{% url "opcua_aggregation_home:emergency_stop_process" %}?process_id=' + processId)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status);
+            });
+        });
+
+        window.addEventListener('unload', function() {
+            navigator.sendBeacon('{% url "opcua_aggregation_home:emergency_stop_process" %}?process_id=' + processId);
+        });
+    </script>
+</body>
+</html>

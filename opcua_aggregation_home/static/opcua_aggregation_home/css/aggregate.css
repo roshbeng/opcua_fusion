@@ -1,0 +1,216 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  color: #333;
+}
+
+h1,
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+.header {
+  background-color: #f5f5f5;
+  color: white;
+  padding: 10px;
+  border-bottom: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  background-color: black;
+  padding: 10px;
+  color: white;
+  border-radius: 5px;
+}
+
+.header a {
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 2px;
+  margin-left: 15px;
+  text-align: center;
+  display: inline-block;
+}
+
+.header a:hover {
+  background-color: #333;
+  color: white;
+  border-color: #222;
+}
+
+form {
+  max-width: 600px;
+  margin: 10px auto;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid black;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+form button:hover {
+  background-color: #218838;
+}
+
+#connections {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0;
+}
+
+#connections li {
+  list-style: none;
+  margin: 10px;
+  text-align: center;
+}
+
+#connections li div {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#connections button {
+  margin: 5px;
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 2px solid black;
+}
+
+#connections button:hover {
+  background-color: #0056b3;
+}
+
+ul#connections {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 0;
+  margin: 20px auto;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+ul#connections li {
+  flex: 0 0 auto;
+}
+
+#scheduleButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+#scheduleButton:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 20px;
+  }
+
+  form,
+  #connections {
+    width: 90%;
+  }
+
+  form input,
+  form select {
+    font-size: 14px;
+  }
+
+  form button {
+    font-size: 14px;
+  }
+
+  #connections li {
+    width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  form,
+  #connections {
+    width: 100%;
+  }
+
+  form label,
+  form input,
+  form select,
+  form button {
+    font-size: 12px;
+  }
+
+  #connections li {
+    width: 140px;
+  }
+
+  #scheduleButton {
+    font-size: 14px;
+  }
+}

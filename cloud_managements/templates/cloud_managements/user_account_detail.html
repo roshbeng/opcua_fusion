@@ -1,0 +1,85 @@
+<!-- cloud_managements/templates/cloud_managements/user_account_detail.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Account Detail</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cloud_managements/css/user_details.css' %}">
+</head>
+<body>
+    <h1>User Account Detail</h1>
+    <p><a href="{% url 'cloud_managements:user_accounts' %}">Back to User Accounts Approval</a></p>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Name:</strong>
+            <input type="text" name="name" value="{{ user.name }}">
+            <button type="submit" name="update_field" value="name">Update</button>
+        </p>
+    </form>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Email:</strong>
+            <input type="email" name="email" value="{{ user.email }}">
+            <button type="submit" name="update_field" value="email">Update</button>
+        </p>
+    </form>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Job Role:</strong>
+            <input type="text" name="job_role" value="{{ user.job_role }}">
+            <button type="submit" name="update_field" value="job_role">Update</button>
+        </p>
+    </form>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Company Name:</strong>
+            <input type="text" name="company_name" value="{{ user.company_name }}">
+            <button type="submit" name="update_field" value="company_name">Update</button>
+        </p>
+    </form>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Description:</strong>
+            <textarea name="description">{{ user.description }}</textarea>
+            <button type="submit" name="update_field" value="description">Update</button>
+        </p>
+    </form>
+    
+   
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Approved:</strong>
+            <input type="checkbox" name="approved" {% if user.approved %}checked{% endif %}>
+            <button type="submit" name="update_field" value="approved">Update</button>
+        </p>
+    </form>
+    
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <strong>Password:</strong>
+            <input type="password" name="password" placeholder="Enter new password">
+            <button type="submit" name="update_field" value="password">Update</button>
+        </p>
+    </form>
+  
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!-- opcua_client/templates/opcua_client/display_dashboard.html -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPC UA Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'opcua_client/css/display_dashboard.css' %}">
+</head>
+<body>
+    <div id="opcua-dashboard">
+        <div id="connection-info">
+            <label for="connection-endpoint"><h3>Endpoint Url:</h3></label>
+            <div id="connection-endpoint">{{ endpoint }}</div>
+            <label for="namespaceuri"><h3>Namespace Uri:</h3></label>
+            <div id="namespaceuri">{{ namespaceuri }}</div>
+            <button id="end-connect-btn">Disconnect</button>
+        </div>
+        <div id="start-timestamp" hidden >{{start_timestamp}}</div>
+        <div id="graph-construction">
+            <button id="graph-button">Generate graph</button>
+            <button id="download-data-button">Download Data</button>
+        </div>
+
+        <div id="machine-address-space">
+            <h3>Machine Address Space</h3>
+            <div id="address-space-tree">
+                
+                <ul>
+                    {% for key, value in data.children.items %}
+                    <li>
+                        <button onclick="toggleNode('{{ key }}')">▶</button>
+                        <a href="#" onclick="getNodeInformation('{{ value.node_id }}', '{{ endpoint }}'); return false;">{{ key }}</a>
+                        {% if value.children %}
+                        <ul id="{{ key }}" style="display: none;">
+                            {% for key_two, value_two in value.children.items %}
+                            <li>
+                                <button onclick="toggleNode('{{ key_two }}')">▶</button>
+                                <a href="#" onclick="getNodeInformation('{{ value_two.node_id }}', '{{ endpoint }}'); return false;">{{ key_two }}</a>
+                                {% if value_two.children %}
+                                <ul id="{{ key_two }}" style="display: none;">
+                                    {% for key_three, value_three in value_two.children.items %}
+                                    <li>
+                                        <button onclick="toggleNode('{{ key_three }}')">▶</button>
+                                        <a href="#" onclick="getNodeInformation('{{ value_three.node_id }}', '{{ endpoint }}'); return false;">{{ key_three }}</a>
+                                        {% if value_three.children %}
+                                        <ul id="{{ key_three }}" style="display: none;">
+                                            {% for great_key_three, great_value_three in value_three.children.items %}
+                                            <li>
+                                                <a href="#" onclick="getNodeInformation('{{ great_value_three.node_id }}', '{{ endpoint }}'); return false;">{{ great_key_three }}</a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div id="display">
+            <h3>Display</h3>
+            <div id="node-details">
+                
+            </div>
+        </div>
+
+        <div id="variables-real-time">
+            <h3>Variables Real Time</h3>
+            <div id="real-time-values">
+                
+            </div>
+        </div>
+
+        <div id="methods">
+            <h3>Methods</h3>
+            {%if method_context%}
+            {% for method_name, method_data in method_context.items %}
+            <div id="method_{{ forloop.counter }}">
+                <h4>{{ forloop.counter }}.{{ method_data.display_name }}  {{method_data.node_id}}: {{method_data.description}}</h4>
+                <form id="{{ method_data.display_name }}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="{{ method_data.display_name }}" name="method_name" value="{{ method_data.display_name }}">
+                    {% if method_data.input_arguments %}
+                    {% for argument in method_data.input_arguments %}
+                    <div>
+                        <p>If boolean datatype, input is either 1 for True or 0 for false</p>
+                        <label for="input_argument_{{ forloop.counter }}">{{ argument.name }} in {{argument.datatype}} datatype:</label>
+                        <textarea id="input_argument_{{ forloop.counter }}" name="input_argument_{{ forloop.counter }}" placeholder="{{ argument.description }}"></textarea>
+                    </div>                    
+                    {% endfor %}
+                    <label for="identifier_text">Description (optional): </label>
+                    <textarea id="identifier_text" name="identifier_text" placeholder="Add a short description to the current method (Optional)"></textarea>
+                    {% endif %}
+                    <button type="submit" id="submit_{{ method_data.display_name }}">Run</button>
+                </form>
+            </div>
+            {% endfor %}
+            {% else %}
+            <form id="no_methods" method="POST">
+                {% csrf_token %}
+                <p>No Methods to show.</p>
+            </form>
+            {% endif %}
+        </div>
+        
+    </div>
+
+    <script>
+        function toggleNode(nodeId) {
+            const element = document.getElementById(nodeId);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const graphButton = document.getElementById("graph-button");
+
+        graphButton.addEventListener("click", function () {
+            
+            const endpoint = document.querySelector("#connection-endpoint").innerText;
+            
+            const namespaceuri = document.querySelector("#namespaceuri").innerText;
+
+            
+            const generateGraphUrl = `{% url 'opcua_client:generate_graph' %}?endpoint=${encodeURIComponent(endpoint)}&namespaceuri=${encodeURIComponent(namespaceuri)}`;
+
+            
+            window.open(generateGraphUrl, '_blank');
+        });
+    });
+
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        const downloadDataButton = document.getElementById("download-data-button");
+
+        downloadDataButton.addEventListener("click", function () {
+            
+            const endpoint = document.querySelector("#connection-endpoint").innerText;
+            
+            const namespaceuri = document.querySelector("#namespaceuri").innerText;
+
+            
+            const downloadDataUrl = `{% url 'opcua_client:download_data' %}?endpoint=${encodeURIComponent(endpoint)}&namespaceuri=${encodeURIComponent(namespaceuri)}`;
+
+            
+            window.open(downloadDataUrl, '_blank');
+        });
+    });
+
+    
+        function getNodeInformation(nodeId, label) {
+            fetch(`/get_node_information?node_id=${nodeId}&endpoint=${encodeURIComponent(label)}`)
+                .then(response => response.json())
+                .then(data => {
+                if (typeof data.identifier !== 'undefined'){
+                    const nodeDetailsDiv = document.getElementById("node-details");
+                    nodeDetailsDiv.innerHTML = `
+                        <p><strong>Identifier:</strong> ${data.identifier}</p>
+                        <p><strong>Node Class:</strong> ${data.node_class}</p>
+                        <p><strong>Description:</strong> ${data.description}</p>
+                        <p><strong>Browse Name:</strong> ${data.browse_name}</p>
+                        <p><strong>Value:</strong> ${data.value_of_variable}</p>
+                        <p><strong>Data Type:</strong> ${data.datatype_of_variable}</p>
+                    `;
+                }else{
+                    const nodeDetailsDiv = document.getElementById("node-details");
+                    nodeDetailsDiv.innerHTML = `
+                        <p><strong>Error:</strong> ${data.error}</p>
+                    `;
+                }})
+                .catch(error => {
+                    console.error('Error:', error);
+                    const nodeDetailsDiv = document.getElementById("node-details");
+                    nodeDetailsDiv.innerHTML = `<p>Error retrieving node information.</p>`;
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const realTimeValuesDiv = document.getElementById("real-time-values");
+            const connectionLabel = document.querySelector("#connection-endpoint");
+            const endpoint = connectionLabel.innerText;
+
+            function fetchRealTimeVariables() {
+                fetch(`/monitor_realtime_variables?endpoint=${encodeURIComponent(endpoint)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        realTimeValuesDiv.innerHTML = ""; 
+
+                        
+                        for (const [key, value] of Object.entries(data)) {
+                            const variableElement = document.createElement("p");
+                            variableElement.textContent = `${key.replace(/_/g, " ")}: ${value}`;
+                            realTimeValuesDiv.appendChild(variableElement);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching real-time variables:', error);
+                        realTimeValuesDiv.innerHTML = "<p>Will Update Soon.</p>";
+                    });
+            }
+
+            
+            setInterval(fetchRealTimeVariables, 500);
+        });
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+    
+    const methodForms = document.querySelectorAll("#methods form");
+
+    
+    methodForms.forEach(form => {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault(); 
+
+            
+            const formData = new FormData(this);
+
+            
+            const endpoint = document.querySelector("#connection-endpoint").innerText;
+            
+            const namespaceuri = document.querySelector("#namespaceuri").innerText;
+            
+            const starttimestamp = document.querySelector("#start-timestamp").innerText;
+            
+
+            
+            formData.append("endpoint", endpoint);
+            
+            formData.append("namespaceuri", namespaceuri);
+            
+            formData.append("starttimestamp", starttimestamp);
+
+           
+            const csrfToken = formData.get('csrfmiddlewaretoken');
+
+            
+            fetch('/call-method/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                
+                const displayDiv = document.getElementById("node-details");
+                displayDiv.innerHTML = `
+                    <h4>Method Execution Result</h4>
+                    <p><strong>Status:</strong> ${data.status}</p>
+                    <p><strong>Output:</strong> ${data.output}</p>
+                    <p><strong>Message:</strong> ${data.message}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+                const displayDiv = document.getElementById("node-details");
+                displayDiv.innerHTML = `<p>Error processing the method. Please try again.</p>`;
+            });
+        });
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const endConnectBtn = document.getElementById("end-connect-btn");
+
+    endConnectBtn.addEventListener("click", function () {
+        
+        const endpoint = document.querySelector("#connection-endpoint").innerText;
+        
+        const starttimestamp = document.querySelector("#start-timestamp").innerText;
+
+
+        
+        fetch('/remove_connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection ended:', data.message);
+        })
+        .catch(error => {
+            console.error('Error ending the connection:', error);
+        });
+
+        fetch('/end-connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint, start_timestamp: starttimestamp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.end === true) {
+                
+                window.close();
+            } else {
+                
+                console.log('Failed to end the connection:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const endpoint = document.querySelector("#connection-endpoint").innerText;
+    const starttimestamp = document.querySelector("#start-timestamp").innerText;
+
+    window.addEventListener("beforeunload", function (event) {
+        
+        fetch('/end-connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint, start_timestamp: starttimestamp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection ended:', data.message);
+        })
+        .catch(error => {
+            console.error('Error ending the connection:', error);
+        });
+
+        
+        fetch('/remove_connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection ended:', data.message);
+        })
+        .catch(error => {
+            console.error('Error ending the connection:', error);
+        });
+
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const endpoint = document.querySelector("#connection-endpoint").innerText;
+    const starttimestamp = document.querySelector("#start-timestamp").innerText;
+
+    
+    window.addEventListener("unload", function () {
+        
+        fetch('/end-connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint, start_timestamp: starttimestamp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection ended on window close:', data.message);
+        })
+        .catch(error => {
+            console.error('Error ending the connection on window close:', error);
+        });
+        
+       
+        fetch('/remove_connection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ endpoint: endpoint})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection ended:', data.message);
+        })
+        .catch(error => {
+            console.error('Error ending the connection:', error);
+        });
+    });
+});
+
+function endConnection(callback) {
+    const endpoint = document.querySelector("#connection-endpoint").innerText;
+    const starttimestamp = document.querySelector("#start-timestamp").innerText;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+   
+    const removeConnectionPromise = fetch('/remove_connection/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ endpoint: endpoint })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Connection removed:', data.message);
+        return data;
+    })
+    .catch(error => {
+        console.error('Error removing the connection:', error);
+    });
+
+   
+    const endConnectionPromise = fetch('/end-connection/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ endpoint: endpoint, start_timestamp: starttimestamp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.end === true) {
+            console.log('Connection ended:', data.message);
+        } else {
+            console.log('Failed to end the connection:', data.message);
+        }
+        return data;
+    })
+    .catch(error => {
+        console.error('Error ending the connection:', error);
+    });
+
+    Promise.all([removeConnectionPromise, endConnectionPromise]).then(() => {
+        if (callback) {
+            callback();
+        }
+    });
+}
+
+
+
+    </script>
+</body>
+</html>

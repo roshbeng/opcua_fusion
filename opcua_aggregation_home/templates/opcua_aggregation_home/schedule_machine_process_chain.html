@@ -1,0 +1,36 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/schedule_machine_process_chain.html -->
+ 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule the Method Processes Order</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/schedule_machine_process_chain.css' %}">
+</head>
+<body>
+    <h1>Schedule the Method Processes Order</h1>
+    <form method="post" action="{% url 'opcua_aggregation_home:schedule_machine_process_chain' %}">
+        {% csrf_token %}
+        {% for process_number in process_range %}
+            <label for="process{{ process_number }}">Process {{ process_number }}</label>
+            <select name="process{{ process_number }}" id="process{{ process_number }}">
+                {% for endpoint, methods in all_method_data.items %}
+                    {% for machine in endpoints_and_machines %}
+                        {% if machine.endpoint == endpoint %}
+                            {% with namespaceuri=machine.namespaceuri machine_name=machine.machine %}
+                                {% for method_name, method_data in methods.items %}
+                                    <option value="{{ method_name }}|{{ endpoint }}|{{ namespaceuri }}">
+                                        {{ method_name }}  {{method_data.node_id}} ({{ machine_name }}, {{ endpoint }})
+                                    </option>
+                                {% endfor %}
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <br><br>
+        {% endfor %}
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

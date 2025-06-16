@@ -1,0 +1,18 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/schedule_machine_process_start.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule Machine Process Execution</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/schedule_machine_process_start.css' %}">
+</head>
+<body>
+    <h1>Schedule Machine Process Execution</h1>
+    <p>Press Start button to start the scheduled process.</p>
+    <form method="get" action="{% url 'opcua_aggregation_home:schedule_machine_process_start' %}">
+        <input type="hidden" name="doc_id" value="{{ scheduled_machine_process_execution_doc_id }}">
+        <button type="submit">Start</button>
+    </form>
+</body>
+</html>

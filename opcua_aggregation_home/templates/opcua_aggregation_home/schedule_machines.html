@@ -1,0 +1,31 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/schedule_machines.html -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Machine</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/schedule_machines.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Schedule Machine</h1>
+    </header>
+
+    <p>
+        You're about to start scheduling with:
+        {% for endpoint, machine in machine_endpoint_connections.items %}
+            '{{ machine.machine }}': '{{ endpoint }}'{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+
+    <form method="POST" action="{% url 'opcua_aggregation_home:schedule_machines' %}">
+        {% csrf_token %}
+        <label for="process_count">Number of method processes to schedule:</label>
+        <input type="number" id="process_count" name="process_count" min="1" max="50" />
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

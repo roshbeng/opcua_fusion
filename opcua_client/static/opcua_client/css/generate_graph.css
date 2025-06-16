@@ -1,0 +1,108 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  color: #333;
+}
+
+h1,
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: 900px;
+  margin: 5px auto;
+  padding: 2px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid black;
+}
+
+form > * {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+form label {
+  display: inline-block;
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+form select,
+form input {
+  display: inline-block;
+  width: auto;
+  min-width: 200px;
+  padding: 3px;
+  margin-right: 5px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+form button {
+  display: inline-block;
+  width: auto;
+  padding: 4px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 2px solid black;
+  margin-right: 5px;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+#variables_for_x,
+#variables_for_y,
+#from_date_div,
+#to_date_div {
+  background-color: #f9f9f9;
+  padding: 4px;
+  border-radius: 5px;
+  margin-top: 4px;
+  font-size: 12px;
+  width: 100%;
+}
+
+#image-gallery div {
+  text-align: center;
+}
+
+#image-gallery img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 4px auto;
+}
+
+#image-gallery button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+#image-gallery button:hover {
+  background-color: #0056b3;
+}

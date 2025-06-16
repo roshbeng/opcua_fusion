@@ -1,0 +1,310 @@
+<!-- opcua_aggregation_home/templates/opcua_aggregation_home/index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OPCUA Aggregate</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'opcua_aggregation_home/css/aggregate.css' %}">
+</head>
+<body>
+    <div id="opcua-aggregate">
+        <div class="header">
+            <h1>OPCUA FUSION</h1>
+            <a href="{% url 'cloud_managements:index' %}" target="_blank">GO TO CLOUD MANAGEMENTS</a>
+        </div>
+
+        <h1>Connect to OPCUA Server</h1>
+        <form id="inputForm" method="post" action="{% url 'opcua_aggregation_home:index' %}">
+            {% csrf_token %}
+            <label for="endpoint">Endpoint:</label>
+            <input type="text" id="endpoint" name="endpoint" placeholder="Enter the endpoint" required>
+
+            <label for="namespaceuri">Namespace URI:</label>
+            <input type="text" id="namespaceuri" name="namespaceuri" placeholder="Enter the namespace URI" required>
+
+            <label for="machine">Machine:</label>
+            <select id="machine" name="machine" required>
+                <!--<option value="generic">Generic</option>-->
+                <option value="cnc">CNC</option>
+                <option value="cobot">Cobot</option>
+                <option value="conveyor">Conveyor</option>
+            </select>
+
+            <button type="submit">Connect</button>
+        </form>
+
+        <h2>Connections</h2>
+        <ul id="connections"></ul>
+
+        <h2>Actions</h2>
+        <button id="scheduleButton">Schedule the Machines</button>
+
+       
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+        <script>
+            
+            var machineModelUrls = {
+                'generic': "{% static 'opcua_aggregation_home/3d_assets/generic.gltf' %}",
+                'cnc': "{% static 'opcua_aggregation_home/3d_assets/cnc_v1.gltf' %}",
+                'cobot': "{% static 'opcua_aggregation_home/3d_assets/cobot_v1.gltf' %}",
+                'conveyor': "{% static 'opcua_aggregation_home/3d_assets/conveyor_v1.gltf' %}"
+            };
+
+            var openedWindows = [];
+
+            document.getElementById('inputForm').addEventListener('submit', function(e) {
+                e.preventDefault(); 
+
+                
+                var formData = new FormData(this);
+
+                
+                var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                
+                fetch('{% url "opcua_aggregation_home:index" %}', {
+                    method: 'POST',
+                    credentials: 'same-origin',  
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: formData
+                })
+                .then(function(response) {
+                    
+                    return response.text();
+                })
+                .then(function(text) {
+                    console.log('Form submitted successfully');
+                })
+                .catch(function(error) {
+                    console.error('Error submitting form:', error);
+                });
+
+                
+                var endpointValue = document.getElementById('endpoint').value;
+                var namespaceUriValue = document.getElementById('namespaceuri').value;
+                var machineValue = document.getElementById('machine').value;
+
+                const url = 'start_dashboard/?endpoint=' + encodeURIComponent(endpointValue) +
+                            '&namespaceuri=' + encodeURIComponent(namespaceUriValue) + '&machine=' + encodeURIComponent(machineValue);
+
+                
+                var newWindow = window.open(url, '_blank');
+
+                
+                var windowEntry = {
+                    window: newWindow,
+                    endpoint: endpointValue,
+                    namespaceuri: namespaceUriValue,
+                    machine: machineValue,
+                    listItem: null  
+                };
+                openedWindows.push(windowEntry);
+
+                
+                updateconnections();
+            });
+
+            function updateconnections() {
+                var list = document.getElementById('connections');
+
+                
+                for (var i = openedWindows.length - 1; i >= 0; i--) {
+                    var entry = openedWindows[i];
+                    if (entry.window.closed) {
+                        
+                        if (entry.listItem) {
+                            entry.listItem.parentNode.removeChild(entry.listItem);
+                        }
+                        
+                        openedWindows.splice(i, 1);
+                    }
+                }
+
+                
+                openedWindows.forEach(function(entry) {
+                    if (!entry.listItem) {
+                        var listItem = document.createElement('li');
+
+                        
+                        var modelDiv = document.createElement('div');
+                        modelDiv.style.width = '200px';
+                        modelDiv.style.height = '200px';
+                        listItem.appendChild(modelDiv);
+
+                        
+                        list.appendChild(listItem);
+
+                        
+                        var modelUrl = machineModelUrls[entry.machine];
+
+                        
+                        renderModel(modelDiv, modelUrl);
+
+                        
+                        var endpointSpan = document.createElement('span');
+                        endpointSpan.textContent = ' ' + entry.endpoint + ' ';
+                        listItem.appendChild(endpointSpan);
+
+                        var navigateButton = document.createElement('button');
+                        navigateButton.textContent = 'Navigate to Tab';
+                        navigateButton.addEventListener('click', function() {
+                            if (!entry.window.closed) {
+                                entry.window.focus();
+                            } else {
+                                alert('Tab is already closed.');
+                                if (entry.listItem) {
+                                    entry.listItem.parentNode.removeChild(entry.listItem);
+                                }
+                                var entryIndex = openedWindows.indexOf(entry);
+                                if (entryIndex > -1) {
+                                    openedWindows.splice(entryIndex, 1);
+                                }
+                                updateconnections();
+                            }
+                        });
+
+                        var closeButton = document.createElement('button');
+                        closeButton.textContent = 'End Connection';
+                        closeButton.classList.add('close-btn');
+                        closeButton.addEventListener('click', function() {
+                            if (!entry.window.closed) {
+                                
+                                if (entry.window.endConnection) {
+                                    entry.window.endConnection(function() {
+                                        
+                                        entry.window.close();
+                                    });
+                                } else {
+                                    entry.window.close();
+                                }
+                            }
+                            if (entry.listItem) {
+                                entry.listItem.parentNode.removeChild(entry.listItem);
+                            }
+                            var entryIndex = openedWindows.indexOf(entry);
+                            if (entryIndex > -1) {
+                                openedWindows.splice(entryIndex, 1);
+                            }
+                            updateconnections();
+                        });
+
+                        listItem.appendChild(navigateButton);
+                        listItem.appendChild(closeButton);
+
+                        entry.listItem = listItem;
+                    }
+                });
+            }
+
+            
+            function renderModel(container, modelUrl) {
+                
+                var scene = new THREE.Scene();
+
+                
+                var aspectRatio = container.clientWidth / container.clientHeight;
+                var camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+                camera.position.z = 5;
+
+                
+                var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+
+               
+                var controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+
+                
+                var ambientLight = new THREE.AmbientLight(0x404040); 
+                scene.add(ambientLight);
+
+                var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(5, 10, 7.5).normalize();
+                scene.add(directionalLight);
+
+                
+                var loader = new THREE.GLTFLoader();
+                loader.load(modelUrl, function(gltf) {
+                    
+                    gltf.scene.scale.set(0.5, 0.5, 0.5);
+
+                    
+                    centerModel(gltf.scene, camera);
+
+                    
+                    scene.add(gltf.scene);
+
+                    
+                    animate();
+                }, undefined, function(error) {
+                    console.error('Error while loading the model:', error);
+                });
+
+                function centerModel(model, camera) {
+                    
+                    var box = new THREE.Box3().setFromObject(model);
+
+                    
+                    var center = box.getCenter(new THREE.Vector3());
+
+                    
+                    model.position.x -= center.x;
+                    model.position.y -= center.y;
+                    model.position.z -= center.z;
+
+                    
+                    var size = box.getSize(new THREE.Vector3()).length();
+                    camera.position.set(0, 0, size * 1.5); 
+                    camera.lookAt(new THREE.Vector3(0, 0, 0));  
+                }
+
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+
+                    
+                    controls.update();
+
+                    renderer.render(scene, camera);
+                }
+            }
+
+            
+            window.addEventListener('beforeunload', function(e) {
+
+
+                openedWindows.forEach(function(entry) {
+                    if (!entry.window.closed) {
+                        
+                        if (entry.window.endConnection) {
+                            entry.window.endConnection(function() {
+                                
+                                entry.window.close();
+                            });
+                        } else {
+                            
+                            entry.window.close();
+                        }
+                    }
+                });
+            });
+
+            
+            setInterval(updateconnections, 1000);
+
+            
+            document.getElementById('scheduleButton').addEventListener('click', function() {
+                var popupWindow = window.open('{% url "opcua_aggregation_home:schedule_machines" %}', 'popup', 'width=800,height=600');
+            });
+        </script>
+    </div>
+</body>
+</html>
